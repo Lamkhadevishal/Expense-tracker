@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Fast Budget - Dashboard</title>
+  <link rel="icon" href="https://img.icons8.com/color/48/budget.png" type="image/png">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --bg-light: linear-gradient(to right, #e8f0ff, #f4f7f9);
+      --bg-dark: #1f1f1f;
+      --text-light: #333;
+      --text-dark: #f0f0f0;
+      --card-bg-light: rgba(255, 255, 255, 0.95);
+      --card-bg-dark: #2c2c2c;
+      --card-shadow: rgba(0, 0, 0, 0.1);
+    }
+
+    html[data-theme='light'] body {
+      background: var(--bg-light);
+      color: var(--text-light);
+    }
+
+    html[data-theme='dark'] body {
+      background: var(--bg-dark);
+      color: var(--text-dark);
+    }
+
+    body {
+      display: flex;
+      min-height: 100vh;
+      font-family: 'Inter', sans-serif;
+      transition: background 0.3s, color 0.3s;
+    }
+
+    .sidebar {
+      width: 250px;
+      background: linear-gradient(135deg, #007bff, #00bcd4);
+      color: white;
+      padding: 20px;
+      text-align: center;
+    }
+
+    .sidebar .logo {
+      width: 90px;
+      margin-bottom: 10px;
+    }
+
+    .sidebar h4 {
+      font-weight: bold;
+      margin-bottom: 25px;
+    }
+
+    .sidebar a {
+      display: block;
+      padding: 12px;
+      color: white;
+      text-decoration: none;
+      margin-bottom: 5px;
+      border-radius: 8px;
+      font-size: 16px;
+      transition: 0.3s;
+    }
+
+    .sidebar a:hover {
+      background-color: rgba(255, 255, 255, 0.1);
+      padding-left: 18px;
+    }
+
+    .sidebar a i {
+      margin-right: 10px;
+    }
+
+    .content {
+      flex: 1;
+      padding: 30px;
+    }
+
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 30px;
+    }
+
+    .header h2 {
+      font-weight: 700;
+    }
+
+    .header span {
+      font-weight: 600;
+      color: #007bff;
+    }
+
+    .toggle-theme {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .charts {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 25px;
+    }
+
+    .chart-card {
+      flex: 1 1 calc(33% - 20px);
+      background: var(--card-bg-light);
+      border-radius: 15px;
+      box-shadow: 0 8px 20px var(--card-shadow);
+      padding: 25px;
+      text-align: center;
+      transition: transform 0.3s, background 0.3s;
+    }
+
+    html[data-theme='dark'] .chart-card {
+      background: var(--card-bg-dark);
+    }
+
+    .chart-card:hover {
+      transform: translateY(-8px);
+    }
+
+    .chart-card h5 {
+      font-weight: 600;
+      color: #007bff;
+      margin-bottom: 15px;
+    }
+
+    .chart-card img {
+      max-width: 100%;
+      height: auto;
+      border-radius: 10px;
+      cursor: pointer;
+    }
+
+    @media (max-width: 992px) {
+      .chart-card {
+        flex: 1 1 100%;
+      }
+
+      .sidebar {
+        display: none;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="sidebar">
+    <img src="https://img.icons8.com/color/96/budget.png" alt="Fast Budget Logo" class="logo" />
+    <h4>Budget Dekho</h4>
+
+    <a href="#"><i class="fas fa-chart-pie"></i> Overview</a>
+    <a href="{{ url_for('transaction') }}"><i class="fas fa-receipt"></i> Transactions</a>
+    <a href="#"><i class="fas fa-calendar-check"></i> Scheduled</a>
+    <a href="#"><i class="fas fa-university"></i> Accounts</a>
+    <a href="#"><i class="fas fa-credit-card"></i> Credit Cards</a>
+    <a href="{{ url_for('budget_page') }}"><i class="fas fa-wallet"></i> Budgets</a>
+    <a href="#"><i class="fas fa-money-check-alt"></i> Debts</a>
+    <a href="#"><i class="fas fa-chart-line"></i> Charts</a>
+    <a href="#"><i class="fas fa-calendar-alt"></i> Calendar</a>
+    <hr>
+    <a href="#"><i class="fas fa-file-import"></i> Import/Export</a>
+    <a href="#"><i class="fas fa-cog"></i> Preferences</a>
+    <a href="#"><i class="fas fa-sync"></i> Sync</a>
+    <hr>
+    <a href="#"><i class="fas fa-sliders-h"></i> Settings</a>
+    <a href="#"><i class="fas fa-question-circle"></i> Help</a>
+  </div>
+
+  <div class="content">
+    <div class="header">
+      <h2><i class="fas fa-tachometer-alt"></i> Dashboard</h2>
+      <div class="toggle-theme">
+        <label class="form-check-label" for="themeSwitch">Dark Mode</label>
+        <input class="form-check-input" type="checkbox" id="themeSwitch">
+      </div>
+    </div>
+
+    <span class="fs-5">Total purchase: <strong>₹{{ total_balance }}</strong></span>
+
+    <div class="charts mt-4">
+      <div class="chart-card">
+        <h5><i class="fas fa-chart-pie"></i> Expenses by Category</h5>
+        <button class="btn p-0 border-0" data-bs-toggle="modal" data-bs-target="#modalDonut">
+          <img src="{{ url_for('static', filename='images/donut.png') }}" alt="Donut Chart">
+        </button>
+      </div>
+
+      <div class="chart-card">
+        <h5><i class="fas fa-chart-line"></i> Cumulative Spending</h5>
+        <button class="btn p-0 border-0" data-bs-toggle="modal" data-bs-target="#modalLine">
+          <img src="{{ url_for('static', filename='images/line.png') }}" alt="Line Chart">
+        </button>
+      </div>
+
+      <div class="chart-card">
+        <h5><i class="fas fa-calendar-day"></i> Last 7 Days Spending</h5>
+        <button class="btn p-0 border-0" data-bs-toggle="modal" data-bs-target="#modalBar">
+          <img src="{{ url_for('static', filename='images/bar.png') }}" alt="Bar Chart">
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Chart Modals -->
+  <div class="modal fade" id="modalDonut" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+      <div class="modal-content">
+        <div class="modal-body p-0">
+          <img src="{{ url_for('static', filename='images/donut.png') }}" class="img-fluid w-100 rounded" alt="Donut Chart">
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal fade" id="modalLine" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+      <div class="modal-content">
+        <div class="modal-body p-0">
+          <img src="{{ url_for('static', filename='images/line.png') }}" class="img-fluid w-100 rounded" alt="Line Chart">
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal fade" id="modalBar" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+      <div class="modal-content">
+        <div class="modal-body p-0">
+          <img src="{{ url_for('static', filename='images/bar.png') }}" class="img-fluid w-100 rounded" alt="Bar Chart">
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- JS -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    const switchTheme = document.getElementById('themeSwitch');
+    const htmlTag = document.documentElement;
+
+    // Load saved preference
+    if (localStorage.getItem('theme') === 'dark') {
+      htmlTag.setAttribute('data-theme', 'dark');
+      switchTheme.checked = true;
+    }
+
+    switchTheme.addEventListener('change', () => {
+      if (switchTheme.checked) {
+        htmlTag.setAttribute('data-theme', 'dark');
+        localStorage.setItem('theme', 'dark');
+      } else {
+        htmlTag.setAttribute('data-theme', 'light');
+        localStorage.setItem('theme', 'light');
+      }
+    });
+  </script>
+</body>
+</html>
